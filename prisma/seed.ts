@@ -4,13 +4,21 @@ import bcrypt from "bcryptjs";
 const prisma = new PrismaClient();
 
 async function main() {
+  const adminPassword = process.env.SEED_ADMIN_PASSWORD;
+  const memberPassword = process.env.SEED_MEMBER_PASSWORD;
+  if (!adminPassword || !memberPassword) {
+    throw new Error(
+      "SEED_ADMIN_PASSWORD and SEED_MEMBER_PASSWORD must be set in the environment before running the seed."
+    );
+  }
+
   // Clear existing data
   await prisma.expenseParticipant.deleteMany();
   await prisma.expense.deleteMany();
   await prisma.user.deleteMany();
 
-  const adminHash = await bcrypt.hash("admin123", 10);
-  const memberHash = await bcrypt.hash("member123", 10);
+  const adminHash = await bcrypt.hash(adminPassword, 10);
+  const memberHash = await bcrypt.hash(memberPassword, 10);
 
   const admin = await prisma.user.create({
     data: {
@@ -108,8 +116,8 @@ async function main() {
     },
   });
 
-  console.log("Seeded: admin@splitzees.local / admin123");
-  console.log("Seeded: alex@splitzees.local / member123");
+  console.log("Seeded: admin@splitzees.local (password from SEED_ADMIN_PASSWORD)");
+  console.log("Seeded: alex@splitzees.local (password from SEED_MEMBER_PASSWORD)");
   console.log("Seeded: 4 example expenses");
 }
 
