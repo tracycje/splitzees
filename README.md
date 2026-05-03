@@ -13,12 +13,6 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000).
 
-## Default Accounts
-
-| Account | Email | Password |
-|---------|-------|----------|
-| Admin | admin@splitzees.local | admin123 |
-| Member | alex@splitzees.local | member123 |
 
 ## Features
 
