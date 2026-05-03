@@ -1,0 +1,54 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  role         String   @default("MEMBER") // ADMIN or MEMBER
+  active       Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  paidExpenses    Expense[]            @relation("PaidBy")
+  createdExpenses Expense[]            @relation("CreatedBy")
+  participations  ExpenseParticipant[]
+}
+
+model Expense {
+  id           String   @id @default(cuid())
+  title        String
+  amountCents  Int
+  currencyCode String   @default("GBP")
+  date         DateTime
+  note         String?
+  splitType    String   @default("EQUAL") // EQUAL or CUSTOM
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  paidByUserId    String
+  paidBy          User   @relation("PaidBy", fields: [paidByUserId], references: [id])
+  createdByUserId String
+  createdBy       User   @relation("CreatedBy", fields: [createdByUserId], references: [id])
+
+  participants ExpenseParticipant[]
+}
+
+model ExpenseParticipant {
+  id        String @id @default(cuid())
+  expenseId String
+  userId    String
+  shareCents Int
+
+  expense Expense @relation(fields: [expenseId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id])
+
+  @@unique([expenseId, userId])
+}
